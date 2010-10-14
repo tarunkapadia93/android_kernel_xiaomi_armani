@@ -3626,6 +3626,10 @@ int mmc_pm_notify(struct notifier_block *notify_block,
 			flush_work(&host->detect.work);
 
 		spin_lock_irqsave(&host->lock, flags);
+		if (mmc_bus_needs_resume(host)) {
+			spin_unlock_irqrestore(&host->lock, flags);
+			break;
+		}
 		host->rescan_disable = 1;
 		spin_unlock_irqrestore(&host->lock, flags);
 
