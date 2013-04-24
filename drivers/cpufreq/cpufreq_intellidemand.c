@@ -197,8 +197,8 @@ static struct dbs_tuners {
 	.down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
 	.down_differential_multi_core = MICRO_FREQUENCY_DOWN_DIFFERENTIAL,
 	.up_threshold_any_cpu_load = DEF_FREQUENCY_UP_THRESHOLD,
-	.sync_freq = 1574400,
-	.optimal_freq = 1574400,
+	.sync_freq = 787200,
+	.optimal_freq = 998400,
 	/* 20130711 smart_up */
 	.smart_up = SMART_UP_PLUS,
 	.smart_slow_up_load = SUP_SLOW_UP_LOAD,
@@ -257,7 +257,7 @@ show_one(step_up_interim_hispeed, step_up_interim_hispeed);
 show_one(sampling_early_factor, sampling_early_factor);
 show_one(sampling_interim_factor, sampling_interim_factor);
 
-static int two_phase_freq_array[NR_CPUS] = {[0 ... NR_CPUS-1] = 1958400} ;
+static int two_phase_freq_array[NR_CPUS] = {[0 ... NR_CPUS-1] = 1401600} ;
 
 static ssize_t show_two_phase_freq
 (struct kobject *kobj, struct attribute *attr, char *buf)

@@ -51,7 +51,7 @@
 #define DEF_POWER_SAVE_FREQUENCY		(787200)
 #define DEF_TWO_PHASE_FREQUENCY			(1305600)
 #define DBS_INPUT_EVENT_MIN_FREQ		(1094400)
-#define DEF_FREQUENCY_OPTIMAL			(787200)
+#define DEF_FREQUENCY_OPTIMAL			(998400)
 #define DEF_FREQ_DOWN_STEP			(300000)
 #define DEF_FREQ_DOWN_STEP_BARRIER		(787200)
 #endif
@@ -140,7 +140,7 @@ static struct dbs_tuners {
 	.down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
 	.down_differential_multi_core = MICRO_FREQUENCY_DOWN_DIFFERENTIAL,
 	.up_threshold_any_cpu_load = DEF_FREQUENCY_UP_THRESHOLD_ANY_CPU,
-	.optimal_freq_speed = 1728000,
+	.optimal_freq_speed = 1190400,
 	.shortcut = 0,
 	.power_save_freq = DEF_POWER_SAVE_FREQUENCY,
 	.two_phase_freq = DEF_TWO_PHASE_FREQUENCY,
