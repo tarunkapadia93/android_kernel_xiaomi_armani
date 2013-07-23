@@ -3357,6 +3357,8 @@ static void msm_otg_set_vbus_state(int online)
 	static bool init;
 	struct msm_otg *motg = the_msm_otg;
 
+	dev_info(motg->phy.dev, "Vbus state = %d\n", online);
+
 	if (online) {
 		pr_debug("PMIC: BSV set\n");
 		set_bit(B_SESS_VLD, &motg->inputs);
