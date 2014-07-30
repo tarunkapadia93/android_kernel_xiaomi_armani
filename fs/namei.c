@@ -2838,7 +2838,7 @@ int vfs_unlink(struct inode *dir, struct dentry *dentry)
  */
 static long do_unlinkat(int dfd, const char __user *pathname)
 {
-	int error;
+	int error = 0;
 	char *name = NULL;
 	struct dentry *dentry;
 	struct nameidata nd;
@@ -3027,6 +3027,8 @@ SYSCALL_DEFINE5(linkat, int, olddfd, const char __user *, oldname,
 	struct path old_path, new_path;
 	int how = 0;
 	int error;
+	old_path.dentry = 0;
+	old_path.mnt = 0;
 
 	if ((flags & ~(AT_SYMLINK_FOLLOW | AT_EMPTY_PATH)) != 0)
 		return -EINVAL;
