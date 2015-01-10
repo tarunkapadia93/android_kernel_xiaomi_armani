@@ -88,3 +88,6 @@ obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE) 	+= synaptics_fw_update.o
 obj-$(CONFIG_TOUCHSCREEN_GT9XX)		+= gt9xx/
 obj-$(CONFIG_TOUCHSCREEN_IST30XX)	+= imagis/
 obj-$(CONFIG_STATE_NOTIFIER)			+= state_notifier.o 
+obj-$(CONFIG_TOUCHSCREEN_SWEEP2WAKE)		+= sweep2wake.o
+obj-$(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE)	+= doubletap2wake.o
+obj-$(CONFIG_TOUCHSCREEN_PREVENT_SLEEP)		+= wake_helpers.o
