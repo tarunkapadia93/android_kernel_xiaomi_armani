@@ -1035,7 +1035,9 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep, bool starting)
 				if (last_one)
 					break;
 			}
-			dbg_queue(dep->number, &req->request, 0);
+
+			if (last_one)
+				break;
 		} else {
 			struct dwc3_request	*req1;
 			int maxpkt_size = usb_endpoint_maxp(dep->endpoint.desc);
@@ -1452,12 +1454,7 @@ static int dwc3_gadget_ep_set_halt(struct usb_ep *ep, int value)
 		goto out;
 	}
 
-<<<<<<< HEAD
-	dbg_event(dep->number, "HALT", value);
-	ret = __dwc3_gadget_ep_set_halt(dep, value);
-=======
 	ret = __dwc3_gadget_ep_set_halt(dep, value, false);
->>>>>>> 0169c97... usb: dwc3: gadget: fix set_halt() bug with pending transfers
 out:
 	spin_unlock_irqrestore(&dwc->lock, flags);
 
