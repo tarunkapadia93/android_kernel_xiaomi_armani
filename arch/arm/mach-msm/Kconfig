@@ -3044,3 +3044,10 @@ config KRAIT_REGULATOR
 	 regulators running in ganged mode inside the PMIC. Enable
 	 this option to support such configurations.
 endif
+
+config BRICKED_HOTPLUG
+	bool "bricked hotplug driver"
+	default y
+	depends on MSM_RUN_QUEUE_STATS && MSM_SMP
+	help
+	HOTPLUG driver made by Showp1984
