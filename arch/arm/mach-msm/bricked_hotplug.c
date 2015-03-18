@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2013-2014, Dennis Rassmann <showp1984@gmail.com>
  * Copyright (c) 2013-2014, Pranav Vashi <neobuddy89@gmail.com>
+ * Copyright (c) 2014-2015  Tarun Kapadia <tarunmyid@gmail.com>
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,7 +29,7 @@
 #define DEBUG 0
 
 #define MPDEC_TAG			"[BRICKED] "
-#define HOTPLUG_ENABLED			1
+#define HOTPLUG_ENABLED			0
 #define MSM_MPDEC_STARTDELAY		8000
 #define MSM_MPDEC_DELAY			130
 #define DEFAULT_MIN_CPUS_ONLINE		1

@@ -27,9 +27,9 @@
 #include <linux/tick.h>
 
 #define MSM_HOTPLUG		"msm_hotplug"
-#define HOTPLUG_ENABLED		0
+#define HOTPLUG_ENABLED		1
 #define DEFAULT_UPDATE_RATE	HZ / 10
-#define START_DELAY		HZ * 20
+#define START_DELAY		HZ * 1
 #define MIN_INPUT_INTERVAL	150 * 1000L
 #define DEFAULT_HISTORY_SIZE	10
 #define DEFAULT_DOWN_LOCK_DUR	1000
