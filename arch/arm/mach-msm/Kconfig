@@ -1888,7 +1888,7 @@ config MSM_DEVFREQ_CPUBW
 
 config CPU_UNDERCLOCK
 	bool "enable CPU underclocking option"
-	default n
+	default y
 	help
 	  Enable CPU underclocking to 96Mhz
 
