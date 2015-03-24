@@ -135,7 +135,7 @@ static bool io_is_busy;
  * sync_freq
  */
 static unsigned int up_threshold_any_cpu_load;
-static unsigned int sync_freq = 300000;
+static unsigned int sync_freq = 787200;
 static unsigned int up_threshold_any_cpu_freq;
 
 static void cpufreq_interactive_timer_resched(
