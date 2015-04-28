@@ -3048,6 +3048,15 @@ config FORCE_FAST_CHARGE
 	bool "Force AC charge mode at will"
 	default y
 	help
-		A simple sysfs interface to force adapters that
-		are detected as USB to charge as AC.
+	  A simple sysfs interface to force adapters that
+	  are detected as USB to charge as AC.
+
+config XIAOMI_ARMANI_DTB
+	depends on ARCH_MSM8226
+	default n
+	bool "Xiaomi Armani Device DTBs"
+	help
+	  Only include Xiaomi Armani specific DTBs to limit the number that
+	  get built during kernel compilation.
+
 endif
