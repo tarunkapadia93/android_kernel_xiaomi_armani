@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2013-2014, Dennis Rassmann <showp1984@gmail.com>
  * Copyright (c) 2013-2014, Pranav Vashi <neobuddy89@gmail.com>
+ * Copyright (c) 2014-2015  Tarun Kapadia <tarunmyid@gmail.com>
  * Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,16 +33,16 @@
 #define DEBUG 0
 
 #define MPDEC_TAG			"bricked_hotplug"
-#define HOTPLUG_ENABLED			0
-#define MSM_MPDEC_STARTDELAY		20000
+#define HOTPLUG_ENABLED			1
+#define MSM_MPDEC_STARTDELAY		200
 #define MSM_MPDEC_DELAY			130
 #define DEFAULT_MIN_CPUS_ONLINE		1
 #define DEFAULT_MAX_CPUS_ONLINE		NR_CPUS
 #define DEFAULT_MAX_CPUS_ONLINE_SUSP	1
 #define DEFAULT_SUSPEND_DEFER_TIME	10
-#define DEFAULT_DOWN_LOCK_DUR		500
+#define DEFAULT_DOWN_LOCK_DUR		1000
 
-#define MSM_MPDEC_IDLE_FREQ		499200
+#define MSM_MPDEC_IDLE_FREQ		192000
 
 enum {
 	MSM_MPDEC_DISABLED = 0,
@@ -225,8 +226,7 @@ static void __ref bricked_hotplug_work(struct work_struct *work) {
 	case MSM_MPDEC_DOWN:
 		cpu = get_slowest_cpu();
 		if (cpu > 0) {
-			if (cpu_online(cpu) && !check_cpuboost(cpu)
-					&& !check_down_lock(cpu))
+			if (cpu_online(cpu) && !check_down_lock(cpu))
 				cpu_down(cpu);
 		}
 		break;
@@ -299,7 +299,7 @@ static void __ref bricked_hotplug_resume(struct work_struct *work)
 		}
 	}
 
-	if (wakeup_boost || required_wakeup) {
+	if (required_wakeup) {
 		/* Fire up all CPUs */
 		for_each_cpu_not(cpu, cpu_online_mask) {
 			if (cpu == 0)
