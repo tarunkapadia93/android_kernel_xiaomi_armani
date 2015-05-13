@@ -36,22 +36,13 @@ struct msm_thermal_data {
 	int32_t psm_temp_hyst_degC;
 	int32_t ocr_temp_degC;
 	int32_t ocr_temp_hyst_degC;
+	int32_t therm_reset_temp_degC;
 };
 
 #ifdef CONFIG_THERMAL_MONITOR
-extern int msm_thermal_init(struct msm_thermal_data *pdata);
-extern int msm_thermal_device_init(void);
 extern int msm_thermal_set_frequency(uint32_t cpu, uint32_t freq,
 	bool is_max);
 #else
-static inline int msm_thermal_init(struct msm_thermal_data *pdata)
-{
-	return -ENOSYS;
-}
-static inline int msm_thermal_device_init(void)
-{
-	return -ENOSYS;
-}
 static inline int msm_thermal_set_frequency(uint32_t cpu, uint32_t freq,
 	bool is_max)
 {
