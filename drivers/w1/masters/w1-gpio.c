@@ -61,7 +61,7 @@ static int __init w1_gpio_probe(struct platform_device *pdev)
 	char *key;
 	unsigned int is_open_drain;
 	int ret;
-	int err;
+	int err = 0;
 
 	if (!pdata)
 	{
