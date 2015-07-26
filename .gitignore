@@ -81,6 +81,14 @@ GRTAGS
 GSYMS
 GTAGS
 
+#UserDefined
+dtbToolCM
+kernel.sh
+init.armani.rc
+dtb
+*.zip
+zImage
+
 *.orig
 *~
 \#*#
