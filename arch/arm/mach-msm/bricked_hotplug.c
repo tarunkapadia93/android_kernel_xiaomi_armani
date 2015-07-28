@@ -37,7 +37,7 @@
 #define DEFAULT_MAX_CPUS_ONLINE_SUSP	1
 #define DEFAULT_SUSPEND_DEFER_TIME	10
 
-#define MSM_MPDEC_IDLE_FREQ		249000
+#define MSM_MPDEC_IDLE_FREQ		300000
 
 enum {
 	MSM_MPDEC_DISABLED = 0,
@@ -81,13 +81,15 @@ static struct cpu_hotplug {
 	.bricked_enabled = HOTPLUG_ENABLED,
 };
 
-/* default values 
+/* default values */
 static unsigned int NwNs_Threshold[8] = {12, 0, 25, 7, 30, 10, 0, 18};
 static unsigned int TwTs_Threshold[8] = {140, 0, 140, 190, 140, 190, 0, 190}; 
-*/
 
+/* hotplug slom unplug fast 
 static unsigned int NwNs_Threshold[8] = {22, 0, 37, 34, 47, 39, 0, 46};
 static unsigned int TwTs_Threshold[8] = {400, 0, 400, 100, 400, 100, 0, 100};
+*/
+
 extern unsigned int get_rq_info(void);
 
 unsigned int state = MSM_MPDEC_DISABLED;
