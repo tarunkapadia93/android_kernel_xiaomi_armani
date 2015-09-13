@@ -1011,7 +1011,7 @@ static int mdss_dsi_event_handler(struct mdss_panel_data *pdata,
 		lcd_notifier_call_chain(LCD_EVENT_ON_END, NULL);
 #ifdef CONFIG_STATE_NOTIFIER
 		if (!use_fb_notifier)
-			state_notifier_call_chain(STATE_NOTIFIER_ACTIVE, NULL);
+			state_suspend();
 #endif
 		break;
 	case MDSS_EVENT_BLANK:
@@ -1027,7 +1027,7 @@ static int mdss_dsi_event_handler(struct mdss_panel_data *pdata,
 		lcd_notifier_call_chain(LCD_EVENT_OFF_END, NULL);
 #ifdef CONFIG_STATE_NOTIFIER
 		if (!use_fb_notifier)
-			state_notifier_call_chain(STATE_NOTIFIER_SUSPEND, NULL);
+			state_suspend();
 #endif
 		break;
 	case MDSS_EVENT_CONT_SPLASH_FINISH:
