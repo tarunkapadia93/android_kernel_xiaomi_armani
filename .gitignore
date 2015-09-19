@@ -82,5 +82,10 @@ GSYMS
 GTAGS
 
 *.orig
+kernel/hz.bc
+*.sh
+dtbToolCM
+zip/
+
 *~
 \#*#
