@@ -49,7 +49,7 @@
 #define DEFAULT_FREQ_BOOST_TIME			(500000)
 #define MAX_FREQ_BOOST_TIME			(5000000)
 #define UP_THRESHOLD_AT_MIN_FREQ		(40)
-#define FREQ_FOR_RESPONSIVENESS			(998400)
+#define FREQ_FOR_RESPONSIVENESS			(1094400)
 
 static u64 hyper_freq_boosted_time;
 

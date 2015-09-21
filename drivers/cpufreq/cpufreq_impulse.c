@@ -135,7 +135,7 @@ static bool powersave_bias;
  */
 static unsigned int max_freq_hysteresis;
 
-static bool io_is_busy = true;
+static bool io_is_busy = false;
 
 /* Round to starting jiffy of next evaluation window */
 static u64 round_to_nw_start(u64 jif)
