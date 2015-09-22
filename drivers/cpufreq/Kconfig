@@ -287,12 +287,6 @@ config CPU_FREQ_GOV_INTERACTIVE
 	tristate "'interactive' cpufreq policy governor"
 	help
 	  'interactive' - This driver adds a dyna+config CPU_FREQ_GOV_LIONHEART
-+	tristate "'lionheart' cpufreq governor"
-+	depends on CPU_FREQ
-+	help
-+	  'Lionheart' - A brave and agile conservative-based governor.mic cpufreq policy governor
-	  designed for latency-sensitive workloads.
-
 	  This governor attempts to reduce the latency of clock
 	  increases so that the system is more responsive to
 	  interactive workloads.
