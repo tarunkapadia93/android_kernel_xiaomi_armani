@@ -3081,5 +3081,10 @@ config ALUCARD_HOTPLUG
 	default y
 	help
 	  Alucard-hotplug cpu hotplug driver for ARM SOCs
-
+	  
+config MAKO_HOTPLUG
+    bool "Enable Mako Hotplug"
+    default y
+    help
+      Mako Hotplug: A custom hotplug by fransico franco
 endif
