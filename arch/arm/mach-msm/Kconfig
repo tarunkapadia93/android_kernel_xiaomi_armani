@@ -2876,14 +2876,6 @@ config MSM_DCVS
 	  algorithm and the algorithm returns a frequency for the core which is
 	  passed to the frequency change driver.
 
-config INTELLI_HOTPLUG
-	bool "Intelli hotplug driver"
-	depends on HOTPLUG_CPU
-	default n
-	help
-	  An intelligent cpu hotplug driver for
-	  Low Latency Frequency Transition capable processors.
-
 config MSM_CPR
 	tristate "Use MSM CPR in S/W mode"
 	help
@@ -3067,6 +3059,20 @@ config XIAOMI_ARMANI_DTB
 	help
 	 Only include Xiaomi Armani specific DTBs to limit the number that
 	 get built during kernel compilation.
+
+config ALUCARD_HOTPLUG
+	bool "Enable alucard-hotplug cpu hotplug driver"
+	default y
+	help
+	  Alucard-hotplug cpu hotplug driver for ARM SOCs
+
+config INTELLI_HOTPLUG
+	bool "Intelli hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  An intelligent cpu hotplug driver for
+	  Low Latency Frequency Transition capable processors.
 endif
 
 config KERNEL_TEXT_MPU_PROT
