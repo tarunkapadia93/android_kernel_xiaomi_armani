@@ -469,6 +469,7 @@ struct rgb_config_data {
  * struct qpnp_led_data - internal led data structure
  * @led_classdev - led class device
  * @delayed_work - delayed work for turning off the LED
+ * @workqueue - dedicated workqueue to handle concurrency
  * @work - workqueue for led
  * @id - led index
  * @base_reg - base register given in device tree
@@ -483,6 +484,7 @@ struct qpnp_led_data {
 	struct led_classdev	cdev;
 	struct spmi_device	*spmi_dev;
 	struct delayed_work	dwork;
+	struct workqueue_struct *workqueue;
 	struct work_struct	work;
 	int			id;
 	u16			base;
@@ -496,6 +498,7 @@ struct qpnp_led_data {
 	struct mpp_config_data	*mpp_cfg;
 	int			max_current;
 	bool			default_on;
+	bool                    in_order_command_processing;
 	int			turn_off_delay_ms;
 };
 
@@ -641,7 +644,7 @@ static int qpnp_wled_set(struct qpnp_led_data *led)
 		for (i = 0; i < num_wled_strings; i++) {
 			rc = qpnp_led_masked_write(led,
 				WLED_FULL_SCALE_REG(led->base, i),
-				WLED_MAX_CURR_MASK, led->max_current);
+				WLED_MAX_CURR_MASK, (u8)led->max_current);
 			if (rc) {
 				dev_err(&led->spmi_dev->dev,
 					"Write max current failure (%d)\n",
@@ -764,8 +767,9 @@ static int qpnp_wled_set(struct qpnp_led_data *led)
 
 static int qpnp_mpp_set(struct qpnp_led_data *led)
 {
-	int rc, val;
-	int duty_us;
+	int rc;
+	u8 val;
+	int duty_us, duty_ns, period_us;
 
 	if (led->cdev.brightness) {
 		if (led->cdev.brightness < led->mpp_cfg->min_brightness) {
@@ -784,13 +788,23 @@ static int qpnp_mpp_set(struct qpnp_led_data *led)
 			}
 		}
 		if (led->mpp_cfg->pwm_mode == PWM_MODE) {
-			pwm_disable(led->mpp_cfg->pwm_cfg->pwm_dev);
-			duty_us = (led->mpp_cfg->pwm_cfg->pwm_period_us *
-					led->cdev.brightness) / LED_FULL;
 			/*config pwm for brightness scaling*/
-			rc = pwm_config_us(led->mpp_cfg->pwm_cfg->pwm_dev,
+			period_us = led->mpp_cfg->pwm_cfg->pwm_period_us;
+			if (period_us > INT_MAX / NSEC_PER_USEC) {
+				duty_us = (period_us * led->cdev.brightness) /
+					LED_FULL;
+				rc = pwm_config_us(
+					led->mpp_cfg->pwm_cfg->pwm_dev,
 					duty_us,
-					led->mpp_cfg->pwm_cfg->pwm_period_us);
+					period_us);
+			} else {
+				duty_ns = ((period_us * NSEC_PER_USEC) /
+					LED_FULL) * led->cdev.brightness;
+				rc = pwm_config(
+					led->mpp_cfg->pwm_cfg->pwm_dev,
+					duty_ns,
+					period_us * NSEC_PER_USEC);
+			}
 			if (rc < 0) {
 				dev_err(&led->spmi_dev->dev, "Failed to " \
 					"configure pwm for new values\n");
@@ -1327,8 +1341,8 @@ error_flash_set:
 
 static int qpnp_kpdbl_set(struct qpnp_led_data *led)
 {
-	int duty_us;
 	int rc;
+	int duty_us, duty_ns, period_us;
 
 	if (led->cdev.brightness) {
 		if (!led->kpdbl_cfg->pwm_cfg->blinking)
@@ -1373,11 +1387,22 @@ static int qpnp_kpdbl_set(struct qpnp_led_data *led)
 		}
 
 		if (led->kpdbl_cfg->pwm_cfg->mode == PWM_MODE) {
-			duty_us = (led->kpdbl_cfg->pwm_cfg->pwm_period_us *
-				led->cdev.brightness) / KPDBL_MAX_LEVEL;
-			rc = pwm_config_us(led->kpdbl_cfg->pwm_cfg->pwm_dev,
+			period_us = led->kpdbl_cfg->pwm_cfg->pwm_period_us;
+			if (period_us > INT_MAX / NSEC_PER_USEC) {
+				duty_us = (period_us * led->cdev.brightness) /
+					KPDBL_MAX_LEVEL;
+				rc = pwm_config_us(
+					led->kpdbl_cfg->pwm_cfg->pwm_dev,
 					duty_us,
-					led->kpdbl_cfg->pwm_cfg->pwm_period_us);
+					period_us);
+			} else {
+				duty_ns = ((period_us * NSEC_PER_USEC) /
+					KPDBL_MAX_LEVEL) * led->cdev.brightness;
+				rc = pwm_config(
+					led->kpdbl_cfg->pwm_cfg->pwm_dev,
+					duty_ns,
+					period_us * NSEC_PER_USEC);
+			}
 			if (rc < 0) {
 				dev_err(&led->spmi_dev->dev, "pwm config failed\n");
 				return rc;
@@ -1474,19 +1499,30 @@ static int qpnp_kpdbl_set(struct qpnp_led_data *led)
 
 static int qpnp_rgb_set(struct qpnp_led_data *led)
 {
-	int duty_us;
 	int rc;
+	int duty_us, duty_ns, period_us;
 
 	if (led->cdev.brightness) {
 		if (!led->rgb_cfg->pwm_cfg->blinking)
 			led->rgb_cfg->pwm_cfg->mode =
 				led->rgb_cfg->pwm_cfg->default_mode;
 		if (led->rgb_cfg->pwm_cfg->mode == PWM_MODE) {
-			duty_us = (led->rgb_cfg->pwm_cfg->pwm_period_us *
-				led->cdev.brightness) / LED_FULL;
-			rc = pwm_config_us(led->rgb_cfg->pwm_cfg->pwm_dev,
+			period_us = led->rgb_cfg->pwm_cfg->pwm_period_us;
+			if (period_us > INT_MAX / NSEC_PER_USEC) {
+				duty_us = (period_us * led->cdev.brightness) /
+					LED_FULL;
+				rc = pwm_config_us(
+					led->rgb_cfg->pwm_cfg->pwm_dev,
 					duty_us,
-					led->rgb_cfg->pwm_cfg->pwm_period_us);
+					period_us);
+			} else {
+				duty_ns = ((period_us * NSEC_PER_USEC) /
+					LED_FULL) * led->cdev.brightness;
+				rc = pwm_config(
+					led->rgb_cfg->pwm_cfg->pwm_dev,
+					duty_ns,
+					period_us * NSEC_PER_USEC);
+			}
 			if (rc < 0) {
 				dev_err(&led->spmi_dev->dev,
 					"pwm config failed\n");
@@ -1542,7 +1578,10 @@ static void qpnp_led_set(struct led_classdev *led_cdev,
 		value = led->cdev.max_brightness;
 
 	led->cdev.brightness = value;
-	schedule_work(&led->work);
+	if (led->in_order_command_processing)
+		queue_work(led->workqueue, &led->work);
+	else
+		schedule_work(&led->work);
 }
 
 static void __qpnp_led_work(struct qpnp_led_data *led,
@@ -1795,13 +1834,22 @@ static int __devinit qpnp_wled_init(struct qpnp_led_data *led)
 
 		rc = qpnp_led_masked_write(led,
 			WLED_FULL_SCALE_REG(led->base, i), WLED_MAX_CURR_MASK,
-			led->max_current);
+			(u8)led->max_current);
 		if (rc) {
 			dev_err(&led->spmi_dev->dev,
 				"WLED max current reg write failed(%d)\n", rc);
 			return rc;
 		}
 
+	}
+
+	/* Reset WLED enable register */
+	rc = qpnp_led_masked_write(led, WLED_MOD_CTRL_REG(led->base),
+		WLED_8_BIT_MASK, WLED_BOOST_OFF);
+	if (rc) {
+		dev_err(&led->spmi_dev->dev,
+			"WLED write ctrl reg failed(%d)\n", rc);
+		return rc;
 	}
 
 	/* dump wled registers */
@@ -2346,6 +2394,7 @@ static void led_blink(struct qpnp_led_data *led,
 {
 	int rc;
 
+	flush_work(&led->work);
 	mutex_lock(&led->lock);
 	if (pwm_cfg->use_blink) {
 		if (led->cdev.brightness) {
@@ -2686,8 +2735,8 @@ static int __devinit qpnp_rgb_init(struct qpnp_led_data *led)
 
 static int __devinit qpnp_mpp_init(struct qpnp_led_data *led)
 {
-	int rc, val;
-
+	int rc;
+	u8 val;
 
 	if (led->max_current < LED_MPP_CURRENT_MIN ||
 		led->max_current > LED_MPP_CURRENT_MAX) {
@@ -3558,6 +3607,24 @@ static int __devinit qpnp_leds_probe(struct spmi_device *spmi)
 		if (led->id != QPNP_ID_FLASH1_LED0 &&
 					led->id != QPNP_ID_FLASH1_LED1)
 			mutex_init(&led->lock);
+
+		led->in_order_command_processing = of_property_read_bool
+				(temp, "qcom,in-order-command-processing");
+
+		if (led->in_order_command_processing) {
+			/*
+			 * the command order from user space needs to be
+			 * maintained use ordered workqueue to prevent
+			 * concurrency
+			 */
+			led->workqueue = alloc_ordered_workqueue
+							("led_workqueue", 0);
+			if (!led->workqueue) {
+				rc = -ENOMEM;
+				goto fail_id_check;
+			}
+		}
+
 		INIT_WORK(&led->work, qpnp_led_work);
 
 		rc =  qpnp_led_initialize(led);
@@ -3678,6 +3745,8 @@ fail_id_check:
 		if (led_array[i].id != QPNP_ID_FLASH1_LED0 &&
 				led_array[i].id != QPNP_ID_FLASH1_LED1)
 			mutex_destroy(&led_array[i].lock);
+		if (led_array[i].in_order_command_processing)
+			destroy_workqueue(led_array[i].workqueue);
 		led_classdev_unregister(&led_array[i].cdev);
 	}
 
@@ -3695,6 +3764,8 @@ static int __devexit qpnp_leds_remove(struct spmi_device *spmi)
 				led_array[i].id != QPNP_ID_FLASH1_LED1)
 			mutex_destroy(&led_array[i].lock);
 
+		if (led_array[i].in_order_command_processing)
+			destroy_workqueue(led_array[i].workqueue);
 		led_classdev_unregister(&led_array[i].cdev);
 		switch (led_array[i].id) {
 		case QPNP_ID_WLED:
