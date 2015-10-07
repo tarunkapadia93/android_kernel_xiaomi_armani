@@ -37,6 +37,7 @@
 #endif
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+bool dit_suspend = false;
 #ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
 #include <linux/input/sweep2wake.h>
 #endif
@@ -963,13 +964,10 @@ int ft5x06_suspend(struct ft5x06_data *ft5x06)
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 	if (prevent_sleep) {
+		dit_suspend = true;
 		enable_irq_wake(ft5x06->irq);
-		mutex_lock(&ft5x06->mutex);
-		cancel_delayed_work_sync(&ft5x06->noise_filter_delayed_work);
-		error = ft5x06_write_byte(ft5x06,
-				FT5X0X_ID_G_PMODE, FT5X0X_POWER_MONITOR);
-		mutex_unlock(&ft5x06->mutex);
 	} else {
+		dit_suspend = false;
 #endif
 	ft5x06_disable_irq(ft5x06, false);
 	mutex_lock(&ft5x06->mutex);
@@ -1006,13 +1004,8 @@ int ft5x06_resume(struct ft5x06_data *ft5x06)
 #endif
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-	if (prevent_sleep) {
+	if (prevent_sleep && dit_suspend) {
 		disable_irq_wake(ft5x06->irq);
-		mutex_lock(&ft5x06->mutex);
-		cancel_delayed_work_sync(&ft5x06->noise_filter_delayed_work);
-		ft5x06_write_byte(ft5x06,
-			FT5X0X_ID_G_PMODE, FT5X0X_POWER_ACTIVE);
-		mutex_unlock(&ft5x06->mutex);
 	} else {
 #endif
 	mutex_lock(&ft5x06->mutex);
