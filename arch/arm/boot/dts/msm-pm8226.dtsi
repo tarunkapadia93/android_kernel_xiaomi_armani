@@ -98,11 +98,8 @@
 			qcom,cool-bat-decidegc = <10>;
 			qcom,cool-bat-mv = <4100>;
 			qcom,ibatmax-cool-ma = <350>;
-			qcom,chg-iadc = <&pm8226_iadc>;
-			qcom,ibat-calibration-enabled;
 			qcom,batt-hot-percentage = <25>;
 	                qcom,batt-cold-percentage = <80>;
-
 			pm8226_chg_chgr: qcom,chgr@1000 {
 				status = "disabled";
 				reg = <0x1000 0x100>;
