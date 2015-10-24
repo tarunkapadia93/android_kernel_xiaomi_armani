@@ -786,6 +786,7 @@ static struct rcg_clk blsp1_uart6_apps_clk_src = {
 static struct clk_freq_tbl ftbl_gcc_ce1_clk[] = {
 	F_GCC(  50000000,      gpll0,  12,    0,    0),
 	F_GCC( 100000000,      gpll0,   6,    0,    0),
+	F_GCC( 150000000,      gpll0,   4,    0,    0),
 	F_END
 };
 
@@ -798,7 +799,7 @@ static struct rcg_clk ce1_clk_src = {
 	.c = {
 		.dbg_name = "ce1_clk_src",
 		.ops = &clk_ops_rcg,
-		VDD_DIG_FMAX_MAP2(LOW, 50000000, NOMINAL, 100000000),
+		VDD_DIG_FMAX_MAP2(LOW, 50000000, NOMINAL, 150000000),
 		CLK_INIT(ce1_clk_src.c),
 	},
 };
