@@ -153,27 +153,21 @@ static void unthrottle_all_cpus(void)
 static int cpu_do_throttle(struct notifier_block *nb, unsigned long val, void *data)
 {
 	struct cpufreq_policy *policy = data;
-	unsigned int user_max = policy->user_policy.max;
 
 	if (val != CPUFREQ_ADJUST)
 		return NOTIFY_OK;
 
 	switch (t_pol->cpu_throttle) {
 	case UNTHROTTLE:
-		policy->max = user_max;
+		policy->max = policy->user_policy.max;
 		break;
 	case LOW_THROTTLE:
 	case MID_THROTTLE:
 	case HIGH_THROTTLE:
-		if (user_max && (user_max < t_pol->throttle_freq))
-			policy->max = user_max;
-		else
-			policy->max = t_pol->throttle_freq;
+		policy->min = policy->cpuinfo.min_freq;
+		policy->max = t_pol->throttle_freq;
 		break;
 	}
-
-	if (policy->min > policy->max)
-		policy->min = policy->max;
 
 	return NOTIFY_OK;
 }
