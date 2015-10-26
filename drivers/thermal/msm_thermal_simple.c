@@ -94,7 +94,6 @@ static void msm_thermal_main(struct work_struct *work)
 	old_throttle = t_pol->cpu_throttle;
        /* Debug */
        pr_warn("xo_therm_pu2 temp is %lluC\n", temp);
-       
 	/* Low trip point */
 	if ((temp >= t_conf->trip_low_degC) &&
 		(temp < t_conf->trip_mid_degC) &&
@@ -159,15 +158,20 @@ static int cpu_do_throttle(struct notifier_block *nb, unsigned long val, void *d
 
 	switch (t_pol->cpu_throttle) {
 	case UNTHROTTLE:
-		policy->max = policy->user_policy.max;
+		policy->max = policy->user_policy.max ? policy->user_policy.max : policy->cpuinfo.max_freq;
 		break;
 	case LOW_THROTTLE:
 	case MID_THROTTLE:
 	case HIGH_THROTTLE:
-		policy->min = policy->cpuinfo.min_freq;
-		policy->max = t_pol->throttle_freq;
+		if (policy->user_policy.max && (policy->user_policy.max < t_pol->throttle_freq))
+			policy->max = policy->user_policy.max;
+		else
+			policy->max = t_pol->throttle_freq;
 		break;
 	}
+
+	if (policy->min > policy->max)
+		policy->min = policy->max;
 
 	return NOTIFY_OK;
 }
@@ -397,4 +401,3 @@ static int __init msm_thermal_init(void)
 	return platform_driver_register(&msm_thermal_device);
 }
 late_initcall(msm_thermal_init);
-
