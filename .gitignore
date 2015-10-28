@@ -89,4 +89,5 @@ zip/
 *~
 *.sh
 \zip
+firmware/ist30xx_wintek.cms
 \#*#
