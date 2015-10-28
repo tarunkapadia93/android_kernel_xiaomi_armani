@@ -43,10 +43,10 @@ static struct thermal_info {
 };
 
 enum thermal_freqs {
-	FREQ_HELL		= 729600,
-	FREQ_VERY_HOT		= 1036800,
-	FREQ_HOT		= 1267200,
-	FREQ_WARM		= 1497600,
+	FREQ_HELL		= 600000,
+	FREQ_VERY_HOT		= 787200,
+	FREQ_HOT		= 1094400,
+	FREQ_WARM		= 1305600,
 };
 
 enum threshold_levels {
@@ -82,7 +82,7 @@ static struct notifier_block msm_thermal_cpufreq_notifier = {
 	.notifier_call = msm_thermal_cpufreq_callback,
 };
 
-static void limit_cpu_freqs(uint32_t max_freq)
+static void __ref limit_cpu_freqs(uint32_t max_freq)
 {
 	unsigned int cpu;
 
