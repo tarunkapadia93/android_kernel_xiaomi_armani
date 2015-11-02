@@ -238,14 +238,7 @@ static int kgsl_pwrctrl_thermal_pwrlevel_store(struct device *dev,
 	if (level > pwr->num_pwrlevels - 1)
 		level = pwr->num_pwrlevels - 1;
 
-	if (level > 5)
-		level = 5;
-
-	/* if ROM set 450 max, set 590Max */
-	if (level == 2)
-		pwr->thermal_pwrlevel = level - 2;
-	else
-		pwr->thermal_pwrlevel = level;
+	pwr->thermal_pwrlevel = level;
 
 	/*
 	 * If there is no power policy set the clock to the requested thermal
@@ -1092,7 +1085,7 @@ int kgsl_pwrctrl_init(struct kgsl_device *device)
 	/* Initialize the user and thermal clock constraints */
 
 	pwr->max_pwrlevel = 0;
-	pwr->min_pwrlevel = pdata->num_levels - 2;
+	pwr->min_pwrlevel = pdata->num_levels - 1;
 	pwr->thermal_pwrlevel = 0;
 
 	pwr->active_pwrlevel = pdata->init_level;
