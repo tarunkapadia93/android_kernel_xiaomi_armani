@@ -84,3 +84,8 @@ GTAGS
 *.orig
 *~
 \#*#
+*.sh
+firmware/ist30xx_wintek.cms
+kernel/hz.bc
+zip/
+
