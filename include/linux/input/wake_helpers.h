@@ -32,6 +32,7 @@ extern bool dt2w_scr_suspended;
 
 int is_headset_in_use(void);
 int in_phone_call(void);
+extern bool dit_suspend;
 
 extern int dt2w_sent_play_pause;
 

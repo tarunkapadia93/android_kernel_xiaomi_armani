@@ -1023,7 +1023,6 @@ static int gtp_init_panel(struct goodix_ts_data *ts)
 			ts->abs_x_max = GTP_MAX_WIDTH;
 			ts->abs_y_max = GTP_MAX_HEIGHT;
 			ts->int_trigger_type = GTP_INT_TRIGGER;
-		}
 	} /* !DRIVER NOT SEND CONFIG */
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 		ts->int_trigger_type = GTP_INT_TRIGGER | IRQF_NO_SUSPEND;
@@ -1031,8 +1030,6 @@ static int gtp_init_panel(struct goodix_ts_data *ts)
 		ts->int_trigger_type = GTP_INT_TRIGGER;
 #endif
 	}
-#endif /* !DRIVER NOT SEND CONFIG */
-
 	if ((ts->abs_x_max == 0) && (ts->abs_y_max == 0)) {
 		ts->abs_x_max = (config_data[RESOLUTION_LOC + 1] << 8)
 				+ config_data[RESOLUTION_LOC];
