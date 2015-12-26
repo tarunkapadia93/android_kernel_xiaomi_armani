@@ -39,6 +39,10 @@
 #include "wcd9xxx-resmgr.h"
 #include "wcd9xxx-common.h"
 
+#ifdef CONFIG_BOEFFLA_SOUND
+#include "boeffla_sound.h"
+#endif
+
 #define TAPAN_HPH_PA_SETTLE_COMP_ON 5000
 #define TAPAN_HPH_PA_SETTLE_COMP_OFF 13000
 
@@ -3524,7 +3528,41 @@ static int tapan_volatile(struct snd_soc_codec *ssc, unsigned int reg)
 #define TAPAN_FORMATS (SNDRV_PCM_FMTBIT_S16_LE)
 #define TAPAN_FORMATS_S16_S24_LE (SNDRV_PCM_FMTBIT_S16_LE | \
 				  SNDRV_PCM_FORMAT_S24_LE)
+#ifdef CONFIG_BOEFFLA_SOUND
+int tapan_write(struct snd_soc_codec *codec, unsigned int reg,
+	unsigned int value)
+#else
 static int tapan_write(struct snd_soc_codec *codec, unsigned int reg,
+	unsigned int value)
+#endif
+{
+	int ret;
+	struct wcd9xxx *wcd9xxx = codec->control_data;
+
+	if (reg == SND_SOC_NOPM)
+		return 0;
+
+	BUG_ON(reg > TAPAN_MAX_REGISTER);
+
+#ifdef CONFIG_BOEFFLA_SOUND
+	// Boeffla Sound write hook
+	value = boeffla_sound_hook_tapan_write(reg, value);
+#endif
+	if (!tapan_volatile(codec, reg)) {
+		ret = snd_soc_cache_write(codec, reg, value);
+		if (ret != 0)
+			dev_err(codec->dev, "Cache write to %x failed: %d\n",
+				reg, ret);
+	}
+
+	return wcd9xxx_reg_write(&wcd9xxx->core_res, reg, value);
+}
+#ifdef CONFIG_BOEFFLA_SOUND
+EXPORT_SYMBOL(tapan_write);
+#endif
+
+#ifdef CONFIG_BOEFFLA_SOUND
+int tapan_write_no_hook(struct snd_soc_codec *codec, unsigned int reg,
 	unsigned int value)
 {
 	int ret;
@@ -3544,8 +3582,16 @@ static int tapan_write(struct snd_soc_codec *codec, unsigned int reg,
 
 	return wcd9xxx_reg_write(&wcd9xxx->core_res, reg, value);
 }
+EXPORT_SYMBOL(tapan_write_no_hook);
+#endif
+
+#ifdef CONFIG_BOEFFLA_SOUND
+unsigned int tapan_read(struct snd_soc_codec *codec,
+				unsigned int reg)
+#else
 static unsigned int tapan_read(struct snd_soc_codec *codec,
 				unsigned int reg)
+#endif
 {
 	unsigned int val;
 	int ret;
@@ -3569,6 +3615,9 @@ static unsigned int tapan_read(struct snd_soc_codec *codec,
 	val = wcd9xxx_reg_read(&wcd9xxx->core_res, reg);
 	return val;
 }
+#ifdef CONFIG_BOEFFLA_SOUND
+EXPORT_SYMBOL(tapan_read);
+#endif
 
 static int tapan_startup(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
@@ -6294,6 +6343,12 @@ static int tapan_codec_probe(struct snd_soc_codec *codec)
 	int i, rco_clk_rate;
 	void *ptr = NULL;
 	struct wcd9xxx_core_resource *core_res;
+
+
+#ifdef CONFIG_BOEFFLA_SOUND
+	// Boeffla Sound probe hook
+	boeffla_sound_hook_tapan_codec_probe(codec);
+#endif
 
 	codec->control_data = dev_get_drvdata(codec->dev->parent);
 	control = codec->control_data;
