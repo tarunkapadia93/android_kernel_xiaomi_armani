@@ -341,7 +341,7 @@ static void __ref intelli_plug_resume(struct work_struct *work)
 		required_wakeup = 1;
 		/* Initiate hotplug work if it was cancelled */
 		required_reschedule = 1;
-		INIT_DELAYED_WORK_DEFERRABLE_DEFERRABLE(&intelli_plug_work,
+		INIT_DELAYED_WORK_DEFERRABLE(&intelli_plug_work,
 				intelli_plug_work_fn);
 		dprintk("%s: resumed.\n", INTELLI_PLUG);
 	}
