@@ -2435,51 +2435,6 @@ void msm_bam_dmux_reinit(void)
 }
 EXPORT_SYMBOL(msm_bam_dmux_reinit);
 
-/**
- * msm_bam_dmux_set_bam_ops() - sets the bam_ops
- * @ops: bam_ops_if to set
- *
- * Sets bam_ops to allow switching of runtime behavior. Preconditon, bam dmux
- * must be in an idle state. If input ops is NULL, then bam_ops will be
- * restored to their default state.
- */
-void msm_bam_dmux_set_bam_ops(struct bam_ops_if *ops)
-{
-	if (ops != NULL)
-		bam_ops = ops;
-	else
-		bam_ops = &bam_default_ops;
-}
-EXPORT_SYMBOL(msm_bam_dmux_set_bam_ops);
-
-/**
- * msm_bam_dmux_deinit() - puts bam dmux into a deinited state
- *
- * Puts bam dmux into a deinitialized state by simulating an ssr.
- */
-void msm_bam_dmux_deinit(void)
-{
-	restart_notifier_cb(NULL, SUBSYS_BEFORE_SHUTDOWN, NULL);
-	restart_notifier_cb(NULL, SUBSYS_AFTER_SHUTDOWN, NULL);
-}
-EXPORT_SYMBOL(msm_bam_dmux_deinit);
-
-/**
- * msm_bam_dmux_reinit() - reinitializes bam dmux
- */
-void msm_bam_dmux_reinit(void)
-{
-	bam_ops->smsm_state_cb_register_ptr(SMSM_MODEM_STATE,
-			SMSM_A2_POWER_CONTROL,
-			bam_dmux_smsm_cb, NULL);
-	bam_ops->smsm_state_cb_register_ptr(SMSM_MODEM_STATE,
-			SMSM_A2_POWER_CONTROL_ACK,
-			bam_dmux_smsm_ack_cb, NULL);
-	bam_mux_initialized = 0;
-	bam_init();
-}
-EXPORT_SYMBOL(msm_bam_dmux_reinit);
-
 static int bam_dmux_probe(struct platform_device *pdev)
 {
 	int rc;
