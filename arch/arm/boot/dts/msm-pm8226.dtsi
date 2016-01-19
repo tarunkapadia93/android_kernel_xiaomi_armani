@@ -45,7 +45,7 @@
 				qcom,pon-type = <0>;
 				qcom,support-reset = <1>;
 				qcom,pull-up = <1>;
-				qcom,s1-timer = <10256>;
+				qcom,s1-timer = <4480>;
 				qcom,s2-timer = <2000>;
 				qcom,s2-type = <1>;
 				linux,code = <116>;
@@ -75,8 +75,8 @@
 			#size-cells = <1>;
 			status = "disabled";
 
-			qcom,vddmax-mv = <4200>;
-			qcom,vddsafe-mv = <4230>;
+			qcom,vddmax-mv = <4350>;
+			qcom,vddsafe-mv = <4400>;
 			qcom,vinmin-mv = <4300>;
 			qcom,vbatdet-delta-mv = <100>;
 			qcom,ibatmax-ma = <1500>;
@@ -196,7 +196,7 @@
 			qcom,use-external-rsense; 
 			qcom,r-sense-uohm = <10000>;
 			qcom,v-cutoff-uv = <3400000>;
-			qcom,max-voltage-uv = <4200000>;
+			qcom,max-voltage-uv = <4350000>;
 			qcom,r-conn-mohm = <0>;
 			qcom,shutdown-soc-valid-limit = <15>;
 			qcom,adjust-soc-low-threshold = <15>;
