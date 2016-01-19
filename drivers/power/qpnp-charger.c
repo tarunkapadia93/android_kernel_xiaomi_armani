@@ -405,7 +405,6 @@ struct qpnp_chg_chip {
 	unsigned int			ext_ovp_isns_gpio;
 	unsigned int			usb_trim_default;
 	u8				chg_temp_thresh_default;
-	struct wake_lock		wl;
 };
 
 static void
@@ -1800,7 +1799,6 @@ qpnp_chg_usb_usbin_valid_irq_handler(int irq, void *_chip)
 					msecs_to_jiffies(2000));
 		}
 
-		wake_lock_timeout(&chip->wl, HZ * 1.5);
 		power_supply_set_present(chip->usb_psy, chip->usb_present);
 		schedule_work(&chip->batfet_lcl_work);
 	}
@@ -5652,7 +5650,6 @@ qpnp_charger_probe(struct spmi_device *spmi)
 		goto unregister_dc_psy;
 	}
 
-	wake_lock_init(&chip->wl, WAKE_LOCK_SUSPEND, "qpnp_wl");
 	qpnp_chg_usb_chg_gone_irq_handler(chip->chg_gone.irq, chip);
 	qpnp_chg_usb_usbin_valid_irq_handler(chip->usbin_valid.irq, chip);
 	qpnp_chg_dc_dcin_valid_irq_handler(chip->dcin_valid.irq, chip);
@@ -5711,7 +5708,6 @@ qpnp_charger_remove(struct spmi_device *spmi)
 	cancel_work_sync(&chip->reduce_power_stage_work);
 	alarm_cancel(&chip->reduce_power_stage_alarm);
 
-	wake_lock_destroy(&chip->wl);
 	mutex_destroy(&chip->batfet_vreg_lock);
 	mutex_destroy(&chip->jeita_configure_lock);
 
