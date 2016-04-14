@@ -212,7 +212,7 @@
 		status = "ok";
 		compatible = "imagis,isa1000";
 		gpio-isa1000-en = <&msmgpio 33 0x00>;
-		gpio-haptic-en = <&msmgpio 50 0x00>;
+		gpio-haptic-en = <&msmgpio 51 0x00>;
 		timeout-ms = <15000>;
 		pwm-channel = <1>;
 	};

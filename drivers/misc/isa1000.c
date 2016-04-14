@@ -26,12 +26,12 @@ struct isa1000_vib {
 	int pwm_channel;
 	unsigned int pwm_frequency;
 	int pwm_duty_percent;
+	int state;
 	struct pwm_device *pwm;
 	struct work_struct work;
-	struct mutex lock;
+	spinlock_t lock;
 	struct hrtimer vib_timer;
 	struct timed_output_dev timed_dev;
-	int state;
 };
 
 static struct isa1000_vib vib_dev = {
@@ -69,10 +69,16 @@ static int isa1000_set_state(struct isa1000_vib *vib, int on)
 static void isa1000_enable(struct timed_output_dev *dev, int value)
 {
 	struct isa1000_vib *vib = container_of(dev, struct isa1000_vib, timed_dev);
-
-	mutex_lock(&vib->lock);
-	hrtimer_cancel(&vib->vib_timer);
-
+	unsigned long flags;
+	
+retry:
+	spin_lock_irqsave(&vib->lock, flags);
+	if (hrtimer_try_to_cancel(&vib->vib_timer) < 0) {
+		spin_unlock_irqrestore(&vib->lock, flags);
+		cpu_relax();
+		goto retry;
+	}
+	
 	if (value == 0)
 		vib->state = 0;
 	else {
@@ -80,9 +86,10 @@ static void isa1000_enable(struct timed_output_dev *dev, int value)
 		value = value > vib->timeout ? vib->timeout : value;
 		hrtimer_start(&vib->vib_timer, ktime_set(value / 1000, (value % 1000) * 1000000), HRTIMER_MODE_REL);
 	}
+	
+	isa1000_set_state(vib, vib->state);
 
-	mutex_unlock(&vib->lock);
-	schedule_work(&vib->work);
+	spin_unlock_irqrestore(&vib->lock, flags);
 }
 
 static void isa1000_update(struct work_struct *work)
@@ -106,9 +113,15 @@ static int isa1000_get_time(struct timed_output_dev *dev)
 static enum hrtimer_restart isa1000_timer_func(struct hrtimer *timer)
 {
 	struct isa1000_vib *vib = container_of(timer, struct isa1000_vib, vib_timer);
+	
+	unsigned long flags;
+	
+	spin_lock_irqsave(&vib->lock, flags);
 
 	vib->state = 0;
-	schedule_work(&vib->work);
+	isa1000_set_state(vib, vib->state);
+	
+	spin_unlock_irqrestore(&vib->lock, flags);
 
 	return HRTIMER_NORESTART;
 }
@@ -247,7 +260,7 @@ static int isa1000_probe(struct platform_device *pdev)
 		return PTR_ERR(vib->pwm);
 	}
 
-	mutex_init(&vib->lock);
+	spin_lock_init(&vib->lock);
 
 	INIT_WORK(&vib->work, isa1000_update);
 
@@ -288,8 +301,6 @@ static int isa1000_remove(struct platform_device *pdev)
 	hrtimer_cancel(&vib->vib_timer);
 
 	cancel_work_sync(&vib->work);
-
-	mutex_destroy(&vib->lock);
 
 	gpio_free(vib->gpio_haptic_en);
 	gpio_free(vib->gpio_isa1000_en);
